@@ -7,6 +7,12 @@ frontend/.angular/
 # Local H2 database file
 backend/data/
 
+# Real environment files. .env.example is committed, .env is not.
+.env
+.env.local
+*.env
+!.env.example
+
 # Editors and OS
 .idea/
 .vscode/

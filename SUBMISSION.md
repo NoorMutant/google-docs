@@ -19,6 +19,7 @@ document editor, Angular 18 and Spring Boot 3.
 | `Dockerfile` | Builds the Angular app into the Spring Boot jar, one image |
 | `render.yaml` | Optional Render blueprint |
 | `.gitattributes` | Normalises line endings so Linux builds are unaffected by Windows checkouts |
+| `.env.example` | Template for the four deployment variables. No .env is needed to run locally |
 
 ## Handover state
 

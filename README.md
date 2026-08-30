@@ -14,6 +14,7 @@ history.
 
 - [Live deployment and accounts](#live-deployment-and-accounts)
 - [What is supported](#what-is-supported)
+- [Configuration and the database](#configuration-and-the-database)
 - [Running it locally](#running-it-locally)
 - [Tests](#tests)
 - [API reference](#api-reference)
@@ -78,9 +79,37 @@ does not reveal which documents exist.
 
 ---
 
+## Configuration and the database
+
+**There is no `.env` file to fill in for local development, and no database to
+install.** Everything needed to run locally lives in
+`backend/src/main/resources/application.yml`, and the database is an H2 file the app
+creates for itself at `backend/data/docsapp.mv.db` on first start. Delete that file
+for a clean slate.
+
+| Where | Database | Configuration needed |
+| --- | --- | --- |
+| Local development | H2 file, created automatically | None |
+| Tests | H2 in memory, created and dropped per run | None |
+| Deployed | Postgres, which you create on your host | Four environment variables |
+
+For a deployment, copy `.env.example` to `.env` and fill in the four values, or paste
+the same values into your host's environment settings.
+
+Spring Boot does not read `.env` files by itself, so that file is used in one of two
+ways: passed to Docker with `docker run --env-file .env ...`, or treated as the list
+of values to copy into a dashboard such as Render's Environment tab. `.env` is
+gitignored so a real one never gets committed, `.env.example` is committed as the
+template.
+
+The four variables are `SPRING_PROFILES_ACTIVE=prod`, `SPRING_DATASOURCE_URL`,
+`SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`. Nothing else is
+required, and no secret is ever stored in the repository.
+
 ## Running it locally
 
-You need **Java 17 or newer**, **Maven**, and **Node 20 or newer**.
+You need **Java 17 or newer**, **Maven**, and **Node 20 or newer**. No database and
+no configuration.
 
 ### 1. Start the backend
 
