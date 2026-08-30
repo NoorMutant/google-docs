@@ -1,5 +1,7 @@
-# Optional blueprint for Render. Creating the service by hand from the
-# dashboard works exactly the same way, see the deployment section of README.md.
+# Optional blueprint for Render. This project deploys to Railway with a Supabase
+# database, see the deployment section of README.md for those steps. This file is
+# kept because the same four environment variables apply to any host, and Render
+# is a one click alternative.
 services:
   - type: web
     name: ajaia-docs

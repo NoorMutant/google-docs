@@ -256,32 +256,80 @@ seeded accounts.
 ## Deploying
 
 The Dockerfile produces a single self contained image, so any host that runs a
-container will work. These steps are for Render, which has a free tier and needs no
-card.
+container will work. These steps are for Railway with a Supabase database, which is
+the combination this project was deployed with. Render, Koyeb and Fly all work the
+same way, only the dashboard differs.
 
-1. Push this repository to GitHub.
-2. Create a free Postgres database. Render offers one, Neon and Supabase also work.
-   Note the JDBC url, username and password.
-3. In Render create a **New Web Service**, point it at the repository, and choose
-   **Docker** as the runtime. Leave the Dockerfile path as `./Dockerfile`.
-4. Set these environment variables:
+### 1. Create the database on Supabase
 
-   | Name | Value |
-   | --- | --- |
-   | `SPRING_PROFILES_ACTIVE` | `prod` |
-   | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://HOST:5432/DBNAME` |
-   | `SPRING_DATASOURCE_USERNAME` | your database user |
-   | `SPRING_DATASOURCE_PASSWORD` | your database password |
+Create a project, choose a region, and save the database password it generates.
 
-5. Set the health check path to `/api/auth/demo-users`.
-6. Deploy. The first request wakes a sleeping free instance and can take a minute.
+Open **Connect** in the project and pick the **Session pooler** string. This matters:
+the direct connection is IPv6 only on the free plan, and the transaction pooler on
+port 6543 does not support the prepared statements the JDBC driver uses. The session
+pooler on port 5432 is IPv4 and supports both.
 
-`render.yaml` holds the same settings if you prefer a blueprint. Render supplies
-`PORT` itself and the app reads it, so no port configuration is needed.
+It looks like this, and the three parts map onto the three variables below:
 
-Without `SPRING_PROFILES_ACTIVE=prod` the app falls back to the local H2 file, which
-does not survive a redeploy on a free instance. That is the only reason Postgres is
-required for the hosted build.
+```
+postgresql://postgres.abcdefghijklm:YOUR-PASSWORD@aws-0-eu-central-1.pooler.supabase.com:5432/postgres
+             └── username ────────┘ └ password ─┘ └────────── host ──────────────────┘ port  database
+```
+
+### 2. Create the service on Railway
+
+**New Project**, then **Deploy from GitHub repo**, and pick this repository. Railway
+detects the Dockerfile and builds it. No build or start command is needed.
+
+Under **Settings**, generate a public domain. Railway injects `PORT` itself and the
+app reads it, so no port configuration is required.
+
+### 3. Set the variables
+
+In the service's **Variables** tab:
+
+| Name | Value |
+| --- | --- |
+| `SPRING_PROFILES_ACTIVE` | `prod` |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://aws-0-YOUR-REGION.pooler.supabase.com:5432/postgres?sslmode=require` |
+| `SPRING_DATASOURCE_USERNAME` | `postgres.YOUR-PROJECT-REF` |
+| `SPRING_DATASOURCE_PASSWORD` | your Supabase database password |
+
+Note the `jdbc:` prefix and the `?sslmode=require` suffix. Supabase gives you a
+`postgresql://` URL with the credentials inline, which is not the JDBC form, so it
+has to be split apart as shown above.
+
+### 4. Check it
+
+The first build takes a few minutes. When it is done, open the domain. If it loads
+the login page and you can sign in as `alice@ajaia.test` with `demo123`, the database
+connection is working, because the seeded accounts are written on first start.
+
+**Test the connection string before deploying** if you would rather not debug in a
+dashboard. This runs the real image locally against Supabase:
+
+```bash
+docker build -t ajaia-docs . && docker run -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL="jdbc:postgresql://HOST:5432/postgres?sslmode=require" \
+  -e SPRING_DATASOURCE_USERNAME="postgres.YOUR-PROJECT-REF" \
+  -e SPRING_DATASOURCE_PASSWORD="YOUR-PASSWORD" \
+  ajaia-docs
+```
+
+Leave `SPRING_PROFILES_ACTIVE` out of that local command. The prod profile marks the
+session cookie Secure, so a browser will not send it back over plain HTTP. The
+database connection is still exercised, which is the part being tested.
+
+### Notes on the free tiers
+
+- A Supabase project on the free plan **pauses after a week of inactivity**. If this
+  is a link someone might open weeks later, open the Supabase dashboard first to wake
+  it, or use Railway's own Postgres instead, which does not pause.
+- Without `SPRING_PROFILES_ACTIVE=prod` the app falls back to an H2 file inside the
+  container. That works and reseeds itself, but anything written is lost on redeploy.
+  It is a reasonable choice for a pure demo and needs no database at all.
+- The container has been measured starting in 46 seconds inside 512 MB of memory and
+  half a CPU, settling at around 225 MB. It fits comfortably in a small free instance.
 
 **Verified before handover:** a fresh `git clone` builds the image with no extra
 steps, the container honours an injected `PORT`, serves the app and its deep links,
