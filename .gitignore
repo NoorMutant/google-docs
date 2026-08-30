@@ -22,3 +22,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local credential scratch files, never commit these
+env.txt
+env*.txt
+*credentials*
+*secret*

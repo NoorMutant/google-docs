@@ -29,9 +29,12 @@ working paths.
 | | |
 | --- | --- |
 | **Repository** | https://github.com/NoorMutant/google-docs |
-| **Live URL** | see `docs/deployment-url.txt` |
-| **Walkthrough video** | see `docs/walkthrough-video-url.txt` |
+| **Live URL** | https://ajaia-docs-production-4f33.up.railway.app/ |
+| **Walkthrough video** | https://youtu.be/F1Mz-7XHTpM |
 | **Password** | `demo123`, the same for every seeded account |
+
+The live instance runs on Railway as a single Docker image with a Supabase Postgres
+database. Nothing needs to be installed to review it.
 
 Running it locally takes two commands and needs **no configuration and no database
 to install**. An H2 file database is created automatically on first start.
@@ -128,7 +131,7 @@ on first login without setting anything up.
 | At least one meaningful test | 111 tests, 42 backend and 69 frontend |
 | Architecture note | `docs/ARCHITECTURE.md` |
 | AI workflow note | `docs/AI-WORKFLOW.md` |
-| Walkthrough video | See `docs/walkthrough-video-url.txt` |
+| Walkthrough video | https://youtu.be/F1Mz-7XHTpM |
 | Optional stretch | Version history, and role based sharing permissions |
 
 ---

@@ -1,5 +1,8 @@
-Walkthrough video (3 to 5 minutes)
+Walkthrough video
 
-URL: <paste the unlisted Loom or YouTube link here after recording>
+URL: https://youtu.be/F1Mz-7XHTpM
 
-The script for the recording is in docs/VIDEO-SCRIPT.md.
+Covers the main user flow, what works end to end, what was intentionally
+deprioritised, the key implementation decisions, and how AI supported the work.
+
+The script is in docs/VIDEO-SCRIPT.md

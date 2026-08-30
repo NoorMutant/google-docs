@@ -28,12 +28,13 @@ history.
 
 ## Reviewing this project
 
-There is no hosted instance. The app runs locally with two commands and no
-configuration, and the walkthrough video shows the whole flow end to end. The
-Dockerfile and `render.yaml` are included and were verified against a real Postgres,
-so it can be deployed at any point, but a live URL is not part of this submission.
+**Live instance: https://ajaia-docs-production-4f33.up.railway.app/**
+**Walkthrough video: https://youtu.be/F1Mz-7XHTpM**
 
-The fastest way to see it running:
+Hosted on Railway as a single Docker image with a Supabase Postgres database, so
+there is nothing to install to try it.
+
+It also runs locally with two commands and no configuration:
 
 ```bash
 cd backend && mvn spring-boot:run
