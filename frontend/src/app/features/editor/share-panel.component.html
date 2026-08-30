@@ -1,0 +1,56 @@
+<h3 class="panel-title">Sharing</h3>
+
+<p class="muted owner-line">Owned by {{ ownerName }}</p>
+
+@if (error()) {
+  <p class="alert alert-error" role="alert">{{ error() }}</p>
+}
+
+@if (canManage) {
+  <div class="share-form">
+    <select class="field" [(ngModel)]="email" aria-label="Person to share with">
+      <option value="">Choose a person</option>
+      @for (person of selectable; track person.id) {
+        <option [value]="person.email">{{ person.displayName }}</option>
+      }
+    </select>
+
+    <select class="field role-select" [(ngModel)]="role" aria-label="Access level">
+      <option value="VIEWER">Can view</option>
+      <option value="EDITOR">Can edit</option>
+    </select>
+
+    <button class="btn btn-primary" type="button" [disabled]="busy()" (click)="add()">Share</button>
+  </div>
+}
+
+@if (shares().length === 0) {
+  <p class="muted empty">Not shared with anyone yet.</p>
+} @else {
+  <ul class="share-list">
+    @for (share of shares(); track share.userId) {
+      <li>
+        <span class="person">
+          <span class="name">{{ share.displayName }}</span>
+          <span class="muted email">{{ share.email }}</span>
+        </span>
+
+        @if (canManage) {
+          <select
+            class="field role-select small"
+            [ngModel]="share.role"
+            (ngModelChange)="changeRole(share, $event)"
+            [attr.aria-label]="'Access level for ' + share.displayName">
+            <option value="VIEWER">Can view</option>
+            <option value="EDITOR">Can edit</option>
+          </select>
+          <button class="btn-link danger" type="button" (click)="remove(share)">Remove</button>
+        } @else {
+          <span class="badge" [class.editor]="share.role === 'EDITOR'" [class.viewer]="share.role === 'VIEWER'">
+            {{ share.role === 'EDITOR' ? 'Can edit' : 'View only' }}
+          </span>
+        }
+      </li>
+    }
+  </ul>
+}

@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: docs-backend
+
+  # H2 in file mode is the default so the app starts with no database to install.
+  # The file lives under ./data and survives restarts.
+  datasource:
+    url: jdbc:h2:file:./data/docsapp;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  servlet:
+    multipart:
+      # Slightly above the 5 MB attachment limit so the app can return a clean
+      # error instead of the container cutting the request off.
+      max-file-size: 6MB
+      max-request-size: 8MB
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+      timeout: 12h
+  error:
+    include-stacktrace: never
+
+logging:
+  level:
+    root: INFO
+    com.ajaia.docs: INFO
+
+---
+# Used on the deployed instance. Set SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME
+# and SPRING_DATASOURCE_PASSWORD to a Postgres database and run with
+# SPRING_PROFILES_ACTIVE=prod.
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+server:
+  # Render and most other hosts terminate TLS at their edge and forward plain
+  # HTTP. Without this the app believes every request is insecure, so it never
+  # emits HSTS and builds redirect urls with the wrong scheme.
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        # Only sent back over HTTPS. This is why the prod profile needs a real
+        # TLS endpoint in front of it and will not sign you in over plain HTTP.
+        secure: true

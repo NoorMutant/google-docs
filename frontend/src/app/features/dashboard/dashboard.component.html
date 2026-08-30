@@ -1,0 +1,84 @@
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand-mark">D</span>
+    <h1>Docs</h1>
+    <span class="spacer"></span>
+    @if (auth.currentUser(); as me) {
+      <span class="muted who">{{ me.displayName }}</span>
+    }
+    <button class="btn" type="button" (click)="signOut()">Sign out</button>
+  </div>
+</header>
+
+<main class="page">
+  <div class="actions">
+    <button class="btn btn-primary" type="button" [disabled]="busy()" (click)="createBlank()">
+      New document
+    </button>
+
+    <label class="btn import-btn">
+      Import a file
+      <input type="file" [accept]="acceptedImports" hidden (change)="importSelected($event)" />
+    </label>
+
+    <span class="muted import-note">Imports accept .txt, .md and .docx up to 2 MB</span>
+
+    @if (busy()) { <span class="spinner"></span> }
+  </div>
+
+  @if (error()) {
+    <p class="alert alert-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="muted" role="status">Loading your documents...</p>
+  } @else {
+    <section>
+      <h2 class="section-title">My documents</h2>
+      @if (owned().length === 0) {
+        <p class="muted empty">Nothing here yet. Create a document or import a file to start.</p>
+      } @else {
+        <ul class="doc-list">
+          @for (doc of owned(); track doc.id) {
+            <li class="card doc-row" (click)="open(doc)">
+              <span class="doc-title">{{ doc.title }}</span>
+              <span class="muted doc-meta" [attr.title]="exact(doc.updatedAt)">Edited {{ when(doc.updatedAt) }}</span>
+              <button class="btn-link danger" type="button" (click)="askToDelete(doc, $event)">Delete</button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section>
+      <h2 class="section-title">Shared with me</h2>
+      @if (shared().length === 0) {
+        <p class="muted empty">No one has shared a document with you yet.</p>
+      } @else {
+        <ul class="doc-list">
+          @for (doc of shared(); track doc.id) {
+            <li class="card doc-row" (click)="open(doc)">
+              <span class="doc-title">{{ doc.title }}</span>
+              <span class="muted doc-meta" [attr.title]="exact(doc.updatedAt)">
+                {{ doc.owner.displayName }} &middot; edited {{ when(doc.updatedAt) }}
+              </span>
+              <span class="badge" [class.editor]="doc.access === 'EDITOR'" [class.viewer]="doc.access === 'VIEWER'">
+                {{ doc.access === 'EDITOR' ? 'Can edit' : 'View only' }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</main>
+
+@if (pendingDelete(); as doc) {
+  <app-confirm-dialog
+    title="Delete this document?"
+    [message]="deleteMessage(doc)"
+    confirmLabel="Delete"
+    [destructive]="true"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)" />
+}

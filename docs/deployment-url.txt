@@ -1,0 +1,12 @@
+Live deployment
+
+URL: <paste the Render URL here after deploying>
+
+Sign in with any of these accounts, the password is demo123 for all of them:
+  alice@ajaia.test   owns a document shared with Bob and Carol
+  bob@ajaia.test     editor on Alice's document, owns one of his own
+  carol@ajaia.test   viewer on Alice's document, best for showing read only mode
+  dan@ajaia.test     no documents, best for showing a fresh share
+
+Deployment steps are in README.md.
+Note: the free tier sleeps when idle, so the first request can take about a minute.

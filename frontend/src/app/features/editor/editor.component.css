@@ -1,0 +1,257 @@
+.loading,
+.missing {
+  max-width: 640px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.missing .btn {
+  display: inline-block;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.topbar-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back {
+  padding: 5px 11px;
+}
+
+.title-input {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  min-width: 160px;
+  max-width: 420px;
+  flex: 0 1 auto;
+}
+
+.title-input:hover:not([readonly]) {
+  border-color: var(--border);
+}
+
+.title-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.save-state {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.page-alert {
+  max-width: 1160px;
+  margin: 12px auto 0;
+  padding: 0 20px;
+}
+
+.page-alert .alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.workspace {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.workspace.with-panel {
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  position: sticky;
+  top: 56px;
+  z-index: 3;
+}
+
+.tool {
+  min-width: 34px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.tool:hover:not(:disabled) {
+  background: #eef1f5;
+}
+
+.tool.active {
+  background: var(--accent-soft);
+  border-color: #cfdcfa;
+  color: var(--accent-dark);
+}
+
+.paper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 46px 56px;
+  min-height: 60vh;
+}
+
+.surface {
+  min-height: 50vh;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.surface.empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Formatting produced by the toolbar. Kept close to the browser defaults so
+   what is stored and what is displayed stay in step. */
+.surface h1 {
+  font-size: 26px;
+  margin: 18px 0 8px;
+}
+
+.surface h2 {
+  font-size: 21px;
+  margin: 16px 0 8px;
+}
+
+.surface p {
+  margin: 0 0 10px;
+}
+
+.surface ul,
+.surface ol {
+  margin: 0 0 10px;
+  padding-left: 26px;
+}
+
+.side-panel {
+  padding: 18px;
+  position: sticky;
+  top: 76px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+@media (max-width: 900px) {
+  .workspace.with-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .paper {
+    padding: 26px 22px;
+  }
+
+  .side-panel {
+    position: static;
+  }
+}
+
+/* Placeholder is driven by a class rather than the :empty selector, because a
+   fresh document holds an empty paragraph and is never truly empty. */
+.paper {
+  position: relative;
+}
+
+.tool-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 4px;
+  background: var(--border);
+}
+
+.toolbar-hint {
+  font-size: 11px;
+  padding-right: 6px;
+  align-self: center;
+}
+
+.toolbar .spacer {
+  flex: 1;
+}
+
+.panel-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tab {
+  padding: 7px 12px;
+}
+
+.tab.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.statusbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 12px;
+  padding: 10px 4px 0;
+}
+
+.statusbar .spacer {
+  flex: 1;
+}
+
+@media (max-width: 620px) {
+  .toolbar-hint,
+  .statusbar span:last-child {
+    display: none;
+  }
+}

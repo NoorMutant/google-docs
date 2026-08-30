@@ -1,0 +1,30 @@
+<h3 class="panel-title">Attachments</h3>
+
+@if (error()) {
+  <p class="alert alert-error" role="alert">{{ error() }}</p>
+}
+
+@if (canEdit) {
+  <label class="btn upload-btn">
+    Attach a file
+    <input type="file" hidden (change)="upload($event)" />
+  </label>
+  <p class="muted note">Any file type, up to 5 MB each.</p>
+  @if (busy()) { <span class="spinner"></span> }
+}
+
+@if (attachments().length === 0) {
+  <p class="muted empty">No files attached to this document.</p>
+} @else {
+  <ul class="file-list">
+    @for (file of attachments(); track file.id) {
+      <li>
+        <a [href]="downloadUrl(file)" class="filename" [attr.download]="file.filename">{{ file.filename }}</a>
+        <span class="muted filesize">{{ size(file.sizeBytes) }}</span>
+        @if (canEdit) {
+          <button class="btn-link danger" type="button" (click)="remove(file)">Remove</button>
+        }
+      </li>
+    }
+  </ul>
+}

@@ -1,0 +1,161 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+}
+
+.brand h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.brand-sub {
+  margin: 0;
+  font-size: 13px;
+}
+
+.user-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.user-chip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'avatar name' 'avatar email';
+  gap: 0 9px;
+  align-items: center;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.user-chip.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.avatar {
+  grid-area: avatar;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+}
+
+.user-name {
+  grid-area: name;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.user-email {
+  grid-area: email;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.password-label {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hint {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  cursor: help;
+}
+
+.tooltip {
+  position: absolute;
+  left: 22px;
+  top: -6px;
+  width: max-content;
+  max-width: 240px;
+  background: #232936;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 6px 9px;
+  border-radius: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+  z-index: 5;
+}
+
+.hint:hover .tooltip,
+.hint:focus .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.signin-error {
+  margin-top: 14px;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.footnote {
+  font-size: 12px;
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .user-grid {
+    grid-template-columns: 1fr;
+  }
+}

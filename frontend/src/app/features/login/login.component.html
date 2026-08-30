@@ -1,0 +1,66 @@
+<div class="login-page">
+  <div class="card login-card">
+    <div class="brand">
+      <span class="brand-mark">D</span>
+      <div>
+        <h1>Docs</h1>
+        <p class="muted brand-sub">A small shared document editor</p>
+      </div>
+    </div>
+
+    @if (users().length > 0) {
+      <p class="label">Choose a demo account</p>
+      <div class="user-grid">
+        @for (user of users(); track user.id) {
+          <button
+            type="button"
+            class="user-chip"
+            [class.selected]="email === user.email"
+            (click)="pick(user)">
+            <span class="avatar">{{ user.displayName.charAt(0) }}</span>
+            <span class="user-name">{{ user.displayName }}</span>
+            <span class="user-email muted">{{ user.email }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    <form (ngSubmit)="submit()">
+      <label class="label" for="email">Email</label>
+      <input id="email" class="field" type="email" name="email" autocomplete="username" [(ngModel)]="email" />
+
+      <label class="label password-label" for="password">
+        Password
+        <span
+          class="hint"
+          tabindex="0"
+          role="note"
+          [attr.aria-label]="'The demo password for every seeded account is ' + demoPassword"
+          [attr.title]="'Demo password for every seeded account: ' + demoPassword">
+          ?
+          <span class="tooltip">Demo password for every seeded account: <b>{{ demoPassword }}</b></span>
+        </span>
+      </label>
+      <input
+        id="password"
+        class="field"
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        [(ngModel)]="password" />
+
+      @if (error()) {
+        <p class="alert alert-error signin-error" role="alert">{{ error() }}</p>
+      }
+
+      <button class="btn btn-primary submit" type="submit" [disabled]="busy()">
+        @if (busy()) { <span class="spinner"></span> Signing in } @else { Sign in }
+      </button>
+    </form>
+
+    <p class="muted footnote">
+      Seeded accounts only, there is no signup. Every account uses the password
+      <b>{{ demoPassword }}</b>.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<h3 class="panel-title">Version history</h3>
+
+@if (error()) {
+  <p class="alert alert-error" role="alert">{{ error() }}</p>
+}
+
+@if (loading()) {
+  <p class="muted empty" role="status">Loading history...</p>
+} @else if (versions().length === 0) {
+  <p class="muted empty">No versions recorded yet.</p>
+} @else {
+  <p class="muted note">
+    Edits made close together by the same person are grouped into one version.
+  </p>
+
+  <ul class="version-list">
+    @for (version of versions(); track version.id) {
+      <li class="version" [class.open]="preview()?.id === version.id">
+        <button type="button" class="version-head" (click)="open(version)">
+          <span class="version-line">
+            <span class="version-number">Version {{ version.versionNumber }}</span>
+            @if (version.current) {
+              <span class="badge editor">Current</span>
+            }
+            @if (version.restoredFromVersion !== null) {
+              <span class="badge">Restored from {{ version.restoredFromVersion }}</span>
+            }
+          </span>
+          <span class="muted version-meta" [attr.title]="exact(version.savedAt)">
+            {{ version.savedBy.displayName }} &middot; {{ when(version.savedAt) }}
+          </span>
+        </button>
+
+        @if (preview()?.id === version.id) {
+          <div class="preview">
+            <div class="preview-body" [innerHTML]="preview()!.contentHtml"></div>
+            @if (canRestore && !version.current) {
+              <button class="btn btn-primary restore" type="button" [disabled]="busy()" (click)="askToRestore(version)">
+                Restore this version
+              </button>
+            } @else if (!canRestore) {
+              <p class="muted restore-note">You need edit access to restore a version.</p>
+            }
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}
+
+@if (pendingRestore(); as version) {
+  <app-confirm-dialog
+    title="Restore this version?"
+    [message]="restoreMessage(version)"
+    confirmLabel="Restore"
+    (confirmed)="confirmRestore()"
+    (cancelled)="pendingRestore.set(null)" />
+}

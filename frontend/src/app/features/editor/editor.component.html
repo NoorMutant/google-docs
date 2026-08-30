@@ -1,0 +1,193 @@
+@if (loading()) {
+  <p class="loading muted">Opening document...</p>
+} @else if (!doc()) {
+  <div class="missing">
+    <h2>Document not available</h2>
+    <p class="muted">{{ error() || 'It may have been deleted, or it was never shared with you.' }}</p>
+    <a class="btn" routerLink="/documents">Back to my documents</a>
+  </div>
+} @else {
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="btn back" type="button" (click)="backToList()" aria-label="Back to documents">&larr;</button>
+
+      <input
+        class="title-input"
+        [(ngModel)]="title"
+        (blur)="saveTitle()"
+        (keydown.enter)="saveTitle()"
+        [readOnly]="!canEdit"
+        aria-label="Document title" />
+
+      @if (!canEdit) {
+        <span class="badge viewer">View only</span>
+      }
+
+      <span class="muted save-state">{{ saveLabel }}</span>
+      <span class="spacer"></span>
+
+      <div class="panel-tabs">
+        <button
+          class="btn tab"
+          type="button"
+          [class.on]="showPanel() && panelTab() === 'share'"
+          (click)="openPanel('share')">
+          Share
+        </button>
+        <button
+          class="btn tab"
+          type="button"
+          [class.on]="showPanel() && panelTab() === 'files'"
+          (click)="openPanel('files')">
+          Files
+        </button>
+        <button
+          class="btn tab"
+          type="button"
+          [class.on]="showPanel() && panelTab() === 'history'"
+          (click)="openPanel('history')">
+          History
+        </button>
+      </div>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="page-alert">
+      <p class="alert alert-error" role="alert">
+        {{ error() }}
+        <button class="btn-link" type="button" (click)="dismissError()">Dismiss</button>
+      </p>
+    </div>
+  }
+
+  @if (!canEdit) {
+    <div class="page-alert">
+      <p class="alert alert-info" role="status">
+        {{ doc()!.owner.displayName }} shared this with you as a viewer, so the toolbar is turned off.
+        You can still read the document, its files and its history.
+      </p>
+    </div>
+  }
+
+  <div class="workspace" [class.with-panel]="showPanel()">
+    <div class="editor-column">
+      <div class="toolbar" role="toolbar" aria-label="Formatting">
+        @for (tool of historyTools; track tool.command) {
+          <button
+            type="button"
+            class="tool"
+            [attr.title]="tooltip(tool)"
+            [attr.aria-label]="tool.title"
+            [disabled]="!canEdit"
+            (mousedown)="$event.preventDefault()"
+            (click)="applyCommand(tool)">
+            {{ tool.label }}
+          </button>
+        }
+
+        <span class="tool-divider"></span>
+
+        @for (tool of inlineTools; track tool.command) {
+          <button
+            type="button"
+            class="tool"
+            [class.active]="isActive(tool)"
+            [attr.title]="tooltip(tool)"
+            [attr.aria-label]="tool.title"
+            [attr.aria-pressed]="isActive(tool)"
+            [style]="tool.style || ''"
+            [disabled]="!canEdit"
+            (mousedown)="$event.preventDefault()"
+            (click)="applyCommand(tool)">
+            {{ tool.label }}
+          </button>
+        }
+
+        <span class="tool-divider"></span>
+
+        @for (tool of blockTools; track tool.label) {
+          <button
+            type="button"
+            class="tool"
+            [class.active]="isActive(tool)"
+            [attr.title]="tooltip(tool)"
+            [attr.aria-label]="tool.title"
+            [attr.aria-pressed]="isActive(tool)"
+            [disabled]="!canEdit"
+            (mousedown)="$event.preventDefault()"
+            (click)="applyCommand(tool)">
+            {{ tool.label }}
+          </button>
+        }
+
+        <span class="tool-divider"></span>
+
+        @for (tool of listTools; track tool.command) {
+          <button
+            type="button"
+            class="tool"
+            [class.active]="isActive(tool)"
+            [attr.title]="tooltip(tool)"
+            [attr.aria-label]="tool.title"
+            [attr.aria-pressed]="isActive(tool)"
+            [disabled]="!canEdit"
+            (mousedown)="$event.preventDefault()"
+            (click)="applyCommand(tool)">
+            {{ tool.label }}
+          </button>
+        }
+
+        <span class="spacer"></span>
+        <span class="muted toolbar-hint">Tab indents a list item</span>
+      </div>
+
+      <div class="paper">
+        <div
+          #surface
+          class="surface"
+          [class.empty]="isEmpty()"
+          [attr.contenteditable]="canEdit"
+          [attr.data-placeholder]="canEdit ? 'Start typing...' : 'This document is empty.'"
+          (input)="onInput()"
+          (paste)="onPaste($event)"
+          (keydown)="onKeydown($event)"
+          (keyup)="onSelectionChanged()"
+          (mouseup)="onSelectionChanged()"
+          (focus)="onSelectionChanged()"
+          role="textbox"
+          aria-multiline="true"
+          aria-label="Document content"></div>
+      </div>
+
+      <div class="statusbar muted">
+        <span>{{ words() }} {{ words() === 1 ? 'word' : 'words' }}</span>
+        <span>{{ characters() }} characters</span>
+        <span class="spacer"></span>
+        <span>Owned by {{ doc()!.owner.displayName }}</span>
+      </div>
+    </div>
+
+    @if (showPanel()) {
+      <aside class="side-panel card">
+        @switch (panelTab()) {
+          @case ('share') {
+            <app-share-panel
+              [documentId]="doc()!.id"
+              [canManage]="isOwner"
+              [ownerName]="doc()!.owner.displayName" />
+          }
+          @case ('files') {
+            <app-attachments-panel [documentId]="doc()!.id" [canEdit]="canEdit" />
+          }
+          @case ('history') {
+            <app-history-panel
+              [documentId]="doc()!.id"
+              [canRestore]="canEdit"
+              (restored)="reloadAfterRestore()" />
+          }
+        }
+      </aside>
+    }
+  </div>
+}
