@@ -279,7 +279,13 @@ postgresql://postgres.abcdefghijklm:YOUR-PASSWORD@aws-0-eu-central-1.pooler.supa
 ### 2. Create the service on Railway
 
 **New Project**, then **Deploy from GitHub repo**, and pick this repository. Railway
-detects the Dockerfile and builds it. No build or start command is needed.
+reads  and builds the root Dockerfile. No build or start command is
+needed.
+
+**Leave the root directory empty.** It is tempting to point Railway at ,
+but the Dockerfile at the repository root is what builds the Angular app and copies
+it into the Spring Boot jar. Pointing at a subfolder skips that and you end up with
+an API and no user interface. This is one service, not two.
 
 Under **Settings**, generate a public domain. Railway injects `PORT` itself and the
 app reads it, so no port configuration is required.

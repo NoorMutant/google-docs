@@ -17,6 +17,7 @@ document editor, Angular 18 and Spring Boot 3.
 | `backend/` | Spring Boot 3.3 application, Java 17, Maven |
 | `frontend/` | Angular 18 application, standalone components |
 | `Dockerfile` | Builds the Angular app into the Spring Boot jar, one image |
+| `railway.json` | Pins Railway to the root Dockerfile and the health check path |
 | `render.yaml` | Optional Render blueprint |
 | `.gitattributes` | Normalises line endings so Linux builds are unaffected by Windows checkouts |
 | `.env.example` | Template for the four deployment variables. No .env is needed to run locally |
