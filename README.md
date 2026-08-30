@@ -279,10 +279,10 @@ postgresql://postgres.abcdefghijklm:YOUR-PASSWORD@aws-0-eu-central-1.pooler.supa
 ### 2. Create the service on Railway
 
 **New Project**, then **Deploy from GitHub repo**, and pick this repository. Railway
-reads  and builds the root Dockerfile. No build or start command is
+reads `railway.json` and builds the root Dockerfile. No build or start command is
 needed.
 
-**Leave the root directory empty.** It is tempting to point Railway at ,
+**Leave the root directory empty.** It is tempting to point Railway at `backend/`,
 but the Dockerfile at the repository root is what builds the Angular app and copies
 it into the Spring Boot jar. Pointing at a subfolder skips that and you end up with
 an API and no user interface. This is one service, not two.
