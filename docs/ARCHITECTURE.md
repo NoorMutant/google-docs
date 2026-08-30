@@ -261,6 +261,28 @@ A 500 tells the caller nothing and tells the operator there is a bug when there 
 not. The handler now maps each Spring exception explicitly and keeps the catch all
 for what it is actually for, which is genuine faults.
 
+### The production build is a different program
+
+Two problems existed only in the packaged build, which is a reminder that a dev server
+is not the thing being shipped.
+
+**The content security policy broke the stylesheet.** Angular inlines critical CSS and
+defers the rest with `<link media="print" onload="this.media='all'">`. The policy
+forbids inline event handlers, so the handler never ran, the stylesheet stayed at
+`media="print"`, and the deployed app rendered with component styles only and no
+global stylesheet. Everything worked, it just looked broken, and nothing in dev mode
+showed it. Turning off `inlineCritical` emits a plain link tag and the policy is
+satisfied without weakening it.
+
+**The app could not tell it was behind TLS.** Render and most hosts terminate HTTPS at
+their edge and forward plain HTTP. Spring therefore treats every request as insecure,
+which means it never emits the HSTS header and builds redirect urls with the wrong
+scheme. `server.forward-headers-strategy: framework` makes it read the forwarded
+headers instead.
+
+Both were found by building the image and opening it in a browser rather than by
+reasoning about the config.
+
 ## Tests
 
 Tests were pointed at what is genuinely risky, not spread evenly for coverage.

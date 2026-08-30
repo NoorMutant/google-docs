@@ -18,6 +18,22 @@ document editor, Angular 18 and Spring Boot 3.
 | `frontend/` | Angular 18 application, standalone components |
 | `Dockerfile` | Builds the Angular app into the Spring Boot jar, one image |
 | `render.yaml` | Optional Render blueprint |
+| `.gitattributes` | Normalises line endings so Linux builds are unaffected by Windows checkouts |
+
+## Handover state
+
+| Check | Result |
+| --- | --- |
+| Git | One commit on `main`, 124 tracked files, no generated output committed |
+| Secrets | None in the repository, all deployment values come from environment variables |
+| Fresh clone | Clones and builds the Docker image with no extra steps |
+| Container | Honours an injected `PORT`, serves the app, its deep links and the API |
+| Postgres | Prod profile run against a real instance, including attachment upload, download and delete |
+| Tests | 42 backend and 69 frontend, all passing |
+
+Still to do, because they need your accounts: push to GitHub, create the Render
+service and Postgres database, record the walkthrough video, and upload the folder to
+Drive. Steps for each are in `README.md` and `docs/VIDEO-SCRIPT.md`.
 
 ## Test accounts
 
@@ -93,6 +109,10 @@ to be typed from memory.
 - Validation and error handling on every endpoint, with readable messages
 - Session cookie auth with BCrypt, CSRF tokens, login throttling, and a full set of
   security headers including a content security policy
+- Consistent JSON errors on every failure path, with correct status codes rather
+  than a blanket 500
+- List endpoints that do not load document bodies, and a query count that does not
+  grow with the number of documents
 - 42 backend tests and 69 frontend tests, all passing, covering both the working
   paths and the refusals
 
@@ -129,3 +149,5 @@ to be typed from memory.
 4. Attachment storage moved behind an interface, filesystem locally and S3 in
    production, so the size cap can rise.
 5. Flyway migrations in place of `ddl-auto`, and a retention rule for old versions.
+6. Move the login throttle counters out of memory, so the limit holds across more
+   than one instance.

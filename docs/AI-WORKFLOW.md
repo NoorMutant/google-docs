@@ -85,6 +85,12 @@ and the useful findings all came from probing the running system, not from readi
   of titles, then issuing a query per row for the owner and another per row for the
   share role. Confirmed by turning on SQL logging and counting.
 
+- The content security policy I had just added silently broke the production
+  stylesheet, because Angular defers CSS with an inline `onload` handler that the
+  policy blocks. The dev server does not do this, so the only way to see it was to
+  build the image, open it, and notice the page was unstyled. That one would have
+  reached reviewers as a visibly broken deployment.
+
 **Rejected: writing the tests to match the behaviour.** Two tests I added during the
 audit failed, and both times the code was wrong rather than the test. A missing file
 part was still a 500, which needed another handler. And the relative time helper used

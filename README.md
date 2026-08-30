@@ -1,47 +1,86 @@
 # Docs, a lightweight collaborative document editor
 
-A small full stack document editor built for the Ajaia AI Native Full Stack assignment.
-Angular 18 on the front, Spring Boot 3 on the back, one deployable artifact.
+A small full stack document editor built for the Ajaia AI Native Full Stack Developer
+assignment. Angular 18 on the front, Spring Boot 3 on the back, shipped as one
+deployable Docker image.
 
-You can create and rename documents, edit them with basic rich text formatting,
-import a file as a new document, attach files to a document, and share a document
-with another user as a viewer or an editor.
+Create and edit documents with rich text formatting, import files, attach files,
+share with other people at a chosen access level, and roll back through version
+history.
 
-## Live deployment
+---
+
+## Contents
+
+- [Live deployment and accounts](#live-deployment-and-accounts)
+- [What is supported](#what-is-supported)
+- [Running it locally](#running-it-locally)
+- [Tests](#tests)
+- [API reference](#api-reference)
+- [Security](#security)
+- [Deploying](#deploying)
+- [Project layout](#project-layout)
+- [Troubleshooting](#troubleshooting)
+- [Further reading](#further-reading)
+
+---
+
+## Live deployment and accounts
 
 | Item | Value |
 | --- | --- |
 | URL | see `docs/deployment-url.txt` |
-| Accounts | alice@ajaia.test, bob@ajaia.test, carol@ajaia.test, dan@ajaia.test |
-| Password | `demo123` for every account |
+| Password | `demo123`, the same for every account |
 
-The login page lists the four accounts and shows the password in a tooltip next to
-the password field, so nothing needs to be typed from memory.
+| Email | Name | Set up as |
+| --- | --- | --- |
+| alice@ajaia.test | Alice Bennett | Owns "Q3 product plan", shared with Bob and Carol |
+| bob@ajaia.test | Bob Carter | Editor on Alice's document, owns "Standup notes" |
+| carol@ajaia.test | Carol Diaz | Viewer on Alice's document, best for read only mode |
+| dan@ajaia.test | Dan Everett | No documents, best for demonstrating a fresh share |
 
-The seed data already contains a shared document, so the sharing behaviour can be
-seen on first login without setting anything up. Alice owns "Q3 product plan" and has
-shared it with Bob as an editor and Carol as a viewer.
+There is no signup. The login page lists the four accounts and shows the password in
+a tooltip beside the password field, so nothing has to be typed from memory. The seed
+data already contains a shared document, so sharing can be seen on first login
+without setting anything up.
+
+---
 
 ## What is supported
 
 | Area | Supported |
 | --- | --- |
 | Formatting | Bold, italic, underline, H1, H2, body text, bulleted list, numbered list |
-| Editing | Undo and redo, Tab and Shift+Tab to nest list items, keyboard shortcuts, live word and character count, autosave with a visible state |
+| Editing | Undo and redo, Tab and Shift+Tab to nest list items, keyboard shortcuts with hints in the tooltips, live word and character count |
+| Saving | Debounced autosave with a visible state, and a flush if you navigate away mid edit |
 | Paste | Content from Word or the web is cleaned to the tags the editor supports, so what you see is what gets stored |
-| Version history | Every save is snapshotted, nearby edits grouped, any version can be previewed and restored |
-| Import as new document | `.txt`, `.md`, `.markdown`, `.docx`, up to 2 MB |
-| Attachments | Any file type, up to 5 MB each |
-| Sharing roles | Viewer (read only) and Editor (read and write) |
+| Version history | Every save snapshotted, nearby edits grouped, any version previewed and restored, restores are append only |
+| Import as a new document | `.txt`, `.md`, `.markdown`, `.docx`, up to 2 MB |
+| Attachments | Any file type, up to 5 MB each, always served as a download |
+| Sharing | Viewer (read only) and Editor (read and write), roles changeable and revocable |
 | Persistence | H2 file database locally, Postgres when deployed |
 
-Only the owner can delete a document or change who it is shared with. Restoring a
-version needs edit access. These limits are also stated in the user interface next
-to the controls they apply to.
+**Who can do what**
+
+| Action | Owner | Editor | Viewer |
+| --- | --- | --- | --- |
+| Open and read | yes | yes | yes |
+| Edit content and title | yes | yes | no |
+| Upload and delete attachments | yes | yes | no |
+| Read version history | yes | yes | yes |
+| Restore a version | yes | yes | no |
+| Change or revoke sharing | yes | no | no |
+| Delete the document | yes | no | no |
+
+Every one of these rules is enforced on the server, in a single service, and covered
+by tests. Someone with no access at all receives a 404 rather than a 403, so the API
+does not reveal which documents exist.
+
+---
 
 ## Running it locally
 
-You need Java 17 or newer, Maven, and Node 20 or newer.
+You need **Java 17 or newer**, **Maven**, and **Node 20 or newer**.
 
 ### 1. Start the backend
 
@@ -49,9 +88,9 @@ You need Java 17 or newer, Maven, and Node 20 or newer.
 cd backend && mvn spring-boot:run
 ```
 
-It listens on http://localhost:8080 and creates an H2 database file under
-`backend/data/`. The four demo accounts and the seed documents are created on the
-first start only, so deleting `backend/data/` gives you a clean slate.
+Serves http://localhost:8080 and creates an H2 database file under `backend/data/`.
+The demo accounts and seed documents are created on first start only, so deleting
+`backend/data/` gives a clean slate.
 
 ### 2. Start the frontend
 
@@ -59,45 +98,128 @@ first start only, so deleting `backend/data/` gives you a clean slate.
 cd frontend && npm install && npm start
 ```
 
-Open http://localhost:4200. The dev server proxies `/api` to port 8080, which is
-configured in `frontend/proxy.conf.json`.
+Open http://localhost:4200. The dev server proxies `/api` to port 8080, configured in
+`frontend/proxy.conf.json`.
 
-### Running everything as one jar
+### Running the whole thing as one container
 
-This is what the deployed instance runs. It builds the Angular app into the Spring
-Boot static folder and serves both from port 8080.
+This is exactly what the deployed instance runs, with the Angular build inside the
+Spring Boot jar on a single port.
 
 ```bash
 docker build -t ajaia-docs . && docker run -p 8080:8080 ajaia-docs
 ```
 
-## Tests
+Do not add `SPRING_PROFILES_ACTIVE=prod` for a local container run. The prod profile
+marks the session cookie `Secure`, so the browser will not send it back over plain
+HTTP and sign in will appear to fail. Prod expects TLS in front of it.
 
-Backend, 42 tests covering the access rules, the auth flow, version history, file
-import, HTML sanitizing, login throttling and the API error contract:
+---
+
+## Tests
 
 ```bash
 cd backend && mvn test
 ```
 
-Frontend, 69 tests covering the paste sanitizer, the API service contract, and the
-login, editor, share panel and dialog components, including their failure paths:
+**42 backend tests.** Access rules end to end through the HTTP layer, the auth flow,
+version history and its coalescing, file import, HTML sanitizing, login throttling,
+and the API error contract.
 
 ```bash
 cd frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
+**69 frontend tests.** The paste sanitizer, the API service contract in both
+directions, and the login, editor, share panel and confirm dialog components,
+including their failure paths.
+
+Both suites cover refusals as well as working paths. Wrong passwords, forbidden
+edits, invalid uploads, unreachable servers and malformed requests all have tests.
+
+---
+
+## API reference
+
+All endpoints are under `/api` and require a session except where noted. Failures
+return `{ "status": number, "message": string, "fieldErrors"?: object }`.
+
+| Method and path | Purpose |
+| --- | --- |
+| `POST /api/auth/login` | Sign in. Public. |
+| `POST /api/auth/logout` | Sign out and invalidate the session. |
+| `GET /api/auth/me` | The signed in user. |
+| `GET /api/auth/demo-users` | Seeded accounts for the login page. Public, demo only. |
+| `GET /api/documents` | Owned and shared lists together. |
+| `POST /api/documents` | Create an empty document. |
+| `GET /api/documents/{id}` | Open a document. |
+| `PATCH /api/documents/{id}` | Update the title, the content, or both. |
+| `DELETE /api/documents/{id}` | Delete. Owner only. |
+| `POST /api/documents/import` | Upload a file as a new document. |
+| `GET POST /api/documents/{id}/shares` | List or grant access. Granting is owner only. |
+| `DELETE /api/documents/{id}/shares/{userId}` | Revoke access. Owner only. |
+| `GET POST /api/documents/{id}/attachments` | List or upload attachments. |
+| `GET DELETE /api/documents/{id}/attachments/{attachmentId}` | Download or remove one. |
+| `GET /api/documents/{id}/versions` | Version history. |
+| `GET /api/documents/{id}/versions/{versionId}` | One version with its content. |
+| `POST /api/documents/{id}/versions/{versionId}/restore` | Restore. Needs edit access. |
+
+**Status codes used**
+
+| Code | When |
+| --- | --- |
+| 400 | Validation failure, unreadable body, bad path value, unsupported file type |
+| 401 | Not signed in, or wrong credentials |
+| 403 | Signed in but not allowed, for example a viewer trying to save |
+| 404 | Does not exist, or the caller has no access to it at all |
+| 405 | Wrong HTTP method |
+| 409 | A conflicting concurrent change |
+| 413 | Upload too large |
+| 415 | Wrong content type |
+| 429 | Too many failed sign in attempts |
+
+---
+
+## Security
+
+| Concern | Approach |
+| --- | --- |
+| Password storage | BCrypt |
+| Session | httpOnly, SameSite=Lax cookie, marked Secure under the prod profile |
+| Session fixation | Session id rotated on login |
+| CSRF | Spring writes `XSRF-TOKEN`, Angular returns it in `X-XSRF-TOKEN` |
+| User enumeration | A wrong password and an unknown email return the identical 401 |
+| Brute force | Five failed attempts locks that account for fifteen minutes |
+| Stored XSS | All content sanitized server side with a strict jsoup allowlist |
+| Reflected XSS | Content Security Policy with no inline script and no off site sources |
+| File upload XSS | Attachments always served `Content-Disposition: attachment` |
+| Clickjacking | `X-Frame-Options: DENY` and `frame-ancestors 'none'` |
+| Transport | HSTS for one year including subdomains |
+| Information leaks | No stack traces in responses, 404 instead of 403 for no access |
+
+Sessions are used rather than JWTs on purpose. A JWT has to live somewhere JavaScript
+can read it, and it cannot be revoked without rebuilding server side session state.
+The reasoning is set out in full in `docs/ARCHITECTURE.md`.
+
+`GET /api/auth/demo-users` is a deliberate exception. It lists the seeded accounts to
+an anonymous caller so reviewers do not have to guess email addresses. It is a user
+enumeration hole, it is labelled as such in the code, and it disappears along with the
+seeded accounts.
+
+---
+
 ## Deploying
 
-The Dockerfile produces a single image, so any host that runs a container works.
-These are the steps for Render, which has a free tier and needs no card.
+The Dockerfile produces a single self contained image, so any host that runs a
+container will work. These steps are for Render, which has a free tier and needs no
+card.
 
-1. Push this folder to a GitHub repository.
-2. Create a free Postgres database. Render offers one, and Neon also works. Copy
-   the JDBC url, the username and the password.
-3. In Render, create a **New Web Service**, point it at the repository, and pick
+1. Push this repository to GitHub.
+2. Create a free Postgres database. Render offers one, Neon and Supabase also work.
+   Note the JDBC url, username and password.
+3. In Render create a **New Web Service**, point it at the repository, and choose
    **Docker** as the runtime. Leave the Dockerfile path as `./Dockerfile`.
-4. Add these environment variables:
+4. Set these environment variables:
 
    | Name | Value |
    | --- | --- |
@@ -106,29 +228,72 @@ These are the steps for Render, which has a free tier and needs no card.
    | `SPRING_DATASOURCE_USERNAME` | your database user |
    | `SPRING_DATASOURCE_PASSWORD` | your database password |
 
-5. Deploy. The first request wakes the free instance and can take around a minute.
+5. Set the health check path to `/api/auth/demo-users`.
+6. Deploy. The first request wakes a sleeping free instance and can take a minute.
 
-`render.yaml` in the repository root holds the same settings if you prefer to
-create the service from a blueprint. Render supplies `PORT` on its own and the app
-reads it.
+`render.yaml` holds the same settings if you prefer a blueprint. Render supplies
+`PORT` itself and the app reads it, so no port configuration is needed.
 
 Without `SPRING_PROFILES_ACTIVE=prod` the app falls back to the local H2 file, which
 does not survive a redeploy on a free instance. That is the only reason Postgres is
-needed for the hosted build.
+required for the hosted build.
+
+**Verified before handover:** a fresh `git clone` builds the image with no extra
+steps, the container honours an injected `PORT`, serves the app and its deep links,
+protects the API, and the prod profile has been run against a real Postgres instance
+including an attachment upload, download and delete.
+
+---
 
 ## Project layout
 
 ```
-backend/     Spring Boot 3.3, Java 17, Maven
-frontend/    Angular 18, standalone components
-docs/        architecture note, AI workflow note, video script and links
-Dockerfile   builds the Angular app into the Spring Boot jar
-render.yaml  optional deployment blueprint
+backend/       Spring Boot 3.3, Java 17, Maven
+  domain/      entities and the access level enum
+  repo/        Spring Data repositories and list projections
+  service/     access rules, documents, sharing, versions, import, sanitizing
+  web/         controllers, DTO records, one exception handler
+frontend/      Angular 18, standalone components
+  core/        services, guard, error mapping, paste sanitizer, shared dialog
+  features/    login, dashboard, editor with share, files and history panels
+docs/          architecture note, AI workflow note, video script, links
+Dockerfile     builds the Angular app into the Spring Boot jar
+render.yaml    optional deployment blueprint
 ```
+
+---
+
+## Troubleshooting
+
+**Sign in does nothing, or writes fail with 403.** The CSRF cookie is missing. Reload
+the page once, which fetches a fresh token.
+
+**Sign in fails in a local container.** You probably set `SPRING_PROFILES_ACTIVE=prod`,
+which marks the session cookie Secure so the browser will not return it over HTTP.
+Drop the profile for local runs.
+
+**"Too many failed sign in attempts".** Five wrong passwords locks that account for
+fifteen minutes. Use one of the other demo accounts, or restart the backend, since
+the counters are held in memory.
+
+**Port 8080 already in use.** Run with `SERVER_PORT=8081` and update
+`frontend/proxy.conf.json` to match.
+
+**The editor is blank after an import.** The file type is supported but produced no
+text. Word files that are only images or tables import as empty, which is expected.
+
+**Styles look unstyled in a container build.** Should not happen now, but if it does,
+check the browser console for a Content Security Policy error. Angular's critical CSS
+inlining emits an inline `onload` handler that the policy blocks, which is why
+`inlineCritical` is turned off in `angular.json`.
+
+---
 
 ## Further reading
 
 - `docs/ARCHITECTURE.md` covers what was built, how it fits together, and why each
-  significant call was made.
-- `docs/AI-WORKFLOW.md` covers how AI tooling was used and what was rejected.
-- `SUBMISSION.md` lists everything in this folder and states what is incomplete.
+  significant call was made, including the bugs found while auditing it.
+- `docs/AI-WORKFLOW.md` covers how AI tooling was used, what was rejected, and how
+  correctness was verified.
+- `SUBMISSION.md` lists everything in this folder, what works, what is incomplete,
+  and what would come next.
