@@ -12,7 +12,7 @@ history.
 
 ## Contents
 
-- [Live deployment and accounts](#live-deployment-and-accounts)
+- [Reviewing this project](#reviewing-this-project)
 - [What is supported](#what-is-supported)
 - [Configuration and the database](#configuration-and-the-database)
 - [Running it locally](#running-it-locally)
