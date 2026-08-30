@@ -13,7 +13,7 @@ document editor, Angular 18 and Spring Boot 3.
 | `docs/AI-WORKFLOW.md` | Which AI tools were used, what was rejected, how correctness was verified |
 | `docs/VIDEO-SCRIPT.md` | Script for the walkthrough recording |
 | `docs/walkthrough-video-url.txt` | Link to the walkthrough video |
-| `docs/deployment-url.txt` | Link to the live deployment |
+| `docs/deployment-url.txt` | How to run it, and the state of deployment |
 | `backend/` | Spring Boot 3.3 application, Java 17, Maven |
 | `frontend/` | Angular 18 application, standalone components |
 | `Dockerfile` | Builds the Angular app into the Spring Boot jar, one image |
@@ -32,9 +32,15 @@ document editor, Angular 18 and Spring Boot 3.
 | Postgres | Prod profile run against a real instance, including attachment upload, download and delete |
 | Tests | 42 backend and 69 frontend, all passing |
 
-Still to do, because they need your accounts: push to GitHub, create the Render
-service and Postgres database, record the walkthrough video, and upload the folder to
-Drive. Steps for each are in `README.md` and `docs/VIDEO-SCRIPT.md`.
+**On hosting.** There is no live URL in this submission. The app is reviewed by
+running it locally, which takes two commands and no configuration, and the
+walkthrough video shows the full flow for anyone who would rather not run it.
+
+It is deployable and that was verified rather than assumed: a fresh clone builds
+the Docker image, the container honours an injected PORT, and the production
+profile was run against a real Postgres including an attachment upload, download
+and delete. `render.yaml` holds the service definition. Only the step that needs a
+hosting account was not carried out.
 
 ## Test accounts
 

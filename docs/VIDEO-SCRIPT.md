@@ -3,8 +3,8 @@
 Target length five minutes. Have two browser windows open, one normal and one
 private, so you can be signed in as two people at once without signing out on camera.
 
-Before recording: open the live URL in both windows, sign in as Alice in the first
-and leave the second on the login page. Have a formatted web page or Word document
+Before recording: start the backend and the frontend, open http://localhost:4200 in
+both windows, sign in as Alice in the first and leave the second on the login page. Have a formatted web page or Word document
 open in a third tab, ready to copy from.
 
 ---
@@ -12,7 +12,8 @@ open in a third tab, ready to copy from.
 ## 0:00 to 0:25, what this is and what I chose
 
 "This is a lightweight collaborative document editor built for the Ajaia assignment.
-Angular 18 on the front, Spring Boot 3 on the back, one Docker image.
+Angular 18 on the front, Spring Boot 3 on the back. It builds into one Docker image,
+and I am running it locally here.
 
 Google Docs is a decade of work, so the useful question was which slice carries the
 most signal. Rather than build ten features shallowly, I went deep on two: the editing

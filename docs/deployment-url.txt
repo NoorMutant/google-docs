@@ -1,6 +1,12 @@
-Live deployment
+Deployment
 
-URL: <paste the Render URL here after deploying>
+This project is not hosted anywhere. It is reviewed by running it locally, which
+takes two commands and needs no configuration and no database to install:
+
+  cd backend && mvn spring-boot:run
+  cd frontend && npm install && npm start
+
+Then open http://localhost:4200
 
 Sign in with any of these accounts, the password is demo123 for all of them:
   alice@ajaia.test   owns a document shared with Bob and Carol
@@ -8,5 +14,11 @@ Sign in with any of these accounts, the password is demo123 for all of them:
   carol@ajaia.test   viewer on Alice's document, best for showing read only mode
   dan@ajaia.test     no documents, best for showing a fresh share
 
-Deployment steps are in README.md.
-Note: the free tier sleeps when idle, so the first request can take about a minute.
+The walkthrough video shows the full flow, so the app can be assessed without
+running anything at all. The link is in docs/walkthrough-video-url.txt
+
+It is deployable. The Dockerfile builds the Angular app into the Spring Boot jar
+as a single image, render.yaml holds the service definition, and the production
+profile was run against a real Postgres instance including an attachment upload,
+download and delete. Deployment steps are in README.md. Only the hosting account
+step was not carried out.

@@ -26,11 +26,27 @@ history.
 
 ---
 
-## Live deployment and accounts
+## Reviewing this project
+
+There is no hosted instance. The app runs locally with two commands and no
+configuration, and the walkthrough video shows the whole flow end to end. The
+Dockerfile and `render.yaml` are included and were verified against a real Postgres,
+so it can be deployed at any point, but a live URL is not part of this submission.
+
+The fastest way to see it running:
+
+```bash
+cd backend && mvn spring-boot:run
+```
+
+```bash
+cd frontend && npm install && npm start
+```
+
+Then open http://localhost:4200 and sign in with any account below.
 
 | Item | Value |
 | --- | --- |
-| URL | see `docs/deployment-url.txt` |
 | Password | `demo123`, the same for every account |
 
 | Email | Name | Set up as |
